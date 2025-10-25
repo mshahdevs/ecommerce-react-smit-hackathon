@@ -1,93 +1,77 @@
-import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Link, useParams, useLocation, useNavigate } from "react-router-dom";
 import {
+  increaseQty,
+  decreaseQty,
+  removeFromCart,
+} from "../features/cart/cartSlice.jsx";
+import {
+  Button,
+  Form,
   ListGroup,
   Row,
   Col,
   Image,
-  Form,
-  Button,
   Card,
 } from "react-bootstrap";
-import Message from "../components/Message";
+import Message from "../components/Message.jsx";
+import { Link, useNavigate } from "react-router-dom";
 
 const Cart = () => {
-  const { id } = useParams();
   const dispatch = useDispatch();
-  const qty = location.search ? Number(location.search.split("=")[1]) : 1;
   const { cartItems } = useSelector((state) => state.cart);
-  console.log(cartItems);
   const navigate = useNavigate();
-  useEffect(() => {
-    const run = async () => {
-      if (id) {
-        await dispatch(addToCart(id, qty));
-        navigate("/cart", { replace: true });
-      }
-    };
-    run();
-  }, [dispatch, id, qty, navigate]);
-  // console.log(qty);
-  const removeFromCartHandler = (id) => {
+  const increaseHandler = (id) => {
+    dispatch(increaseQty(id));
+  };
+
+  const decreaseHandler = (id) => {
+    dispatch(decreaseQty(id));
+  };
+
+  const removeHandler = (id) => {
     dispatch(removeFromCart(id));
   };
   const checkoutHandler = () => {
-    navigate("/login?redirect=shipping");
+    navigate("/checkout");
   };
+
   return (
     <Row>
       <Col md={8}>
         <h1>Shopping Cart</h1>
         {cartItems.length === 0 ? (
-          <Message>
-            Your cart is empty <Link to="/">Go Back</Link>{" "}
-          </Message>
+          <Message>Your cart is empty</Message>
         ) : (
           <ListGroup variant="flush">
             {cartItems.map((item) => (
-              <ListGroup.Item key={item.product}>
+              <ListGroup.Item key={item.id}>
                 <Row>
                   <Col md={2}>
-                    <Image
-                      src={item.image}
-                      alt={item.title}
-                      style={{
-                        height: "100px",
-                        objectFit: "contain",
-                        borderRadius: "10px",
-                        backgroundColor: "#f8f8f8",
-                      }}
-                      fluid
-                      rounded
-                    />
+                    <Image src={item.image} alt={item.title} fluid rounded />
                   </Col>
                   <Col md={3}>
-                    <Link to={`/product/${item.product}`}>{item.title}</Link>
+                    <Link to={`/product/${item.id}`}>{item.title}</Link>
                   </Col>
                   <Col md={2}>${item.price}</Col>
                   <Col md={2}>
-                    <Form.Control
-                      as="select"
-                      value={item.qty}
-                      onChange={(e) =>
-                        dispatch(
-                          addToCart(item.product, Number(e.target.value))
-                        )
-                      }
+                    <Button
+                      variant="light"
+                      onClick={() => decreaseHandler(item.id)}
                     >
-                      {[...Array(item.countInStock).keys()].map((x) => (
-                        <option value={x + 1} key={x + 1}>
-                          {x + 1}
-                        </option>
-                      ))}
-                    </Form.Control>
+                      -
+                    </Button>
+                    <span>{item.qty}</span>
+                    <Button
+                      variant="light"
+                      onClick={() => increaseHandler(item.id)}
+                    >
+                      +
+                    </Button>
                   </Col>
                   <Col md={2}>
                     <Button
                       variant="light"
-                      type="button"
-                      onClick={() => removeFromCartHandler(item.product)}
+                      onClick={() => removeHandler(item.id)}
                     >
                       <i className="fas fa-trash"></i>
                     </Button>
@@ -103,7 +87,6 @@ const Cart = () => {
           <ListGroup variant="flush">
             <ListGroup.Item>
               <h2>
-                {" "}
                 Subtotal ({cartItems.reduce((acc, item) => acc + item.qty, 0)})
                 items
               </h2>
