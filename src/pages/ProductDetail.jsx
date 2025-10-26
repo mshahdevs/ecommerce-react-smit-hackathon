@@ -13,8 +13,7 @@ import { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import Loader from "../components/Loader";
 import Message from "../components/Message";
-import { fetchProductById } from "../features/products/productSlice"; // ✅ your slice
-
+import { fetchProductById } from "../features/products/productSlice";
 const ProductDetail = () => {
   const [qty, setQty] = useState(1);
   const navigate = useNavigate();
@@ -36,12 +35,12 @@ const ProductDetail = () => {
   };
 
   if (status === "loading") return <Loader />;
-  if (status === "failed") return <Message variant="danger">{error}</Message>;
+  if (status === "failed") return <Message variant='danger'>{error}</Message>;
   if (!product) return null; // safety check
 
   return (
     <>
-      <Link className="btn btn-light my-3" to="/">
+      <Link className='btn btn-light my-3' to='/'>
         Go Back
       </Link>
       <Row>
@@ -49,7 +48,7 @@ const ProductDetail = () => {
           <Image src={product.image} alt={product.title} fluid />
         </Col>
         <Col md={3}>
-          <ListGroup variant="flush">
+          <ListGroup variant='flush'>
             <ListGroup.Item>
               <h3>{product.title}</h3>
             </ListGroup.Item>
@@ -57,7 +56,7 @@ const ProductDetail = () => {
               <Rating
                 value={product.rating.rate}
                 text={`${product.rating.count} reviews`}
-                color="#f8e825"
+                color='#f8e825'
               />
             </ListGroup.Item>
             <ListGroup.Item>Price: ${product.price}</ListGroup.Item>
@@ -66,7 +65,7 @@ const ProductDetail = () => {
         </Col>
         <Col md={3}>
           <Card>
-            <ListGroup variant="flush">
+            <ListGroup variant='flush'>
               <ListGroup.Item>
                 <Row>
                   <Col>Price:</Col>
@@ -89,7 +88,7 @@ const ProductDetail = () => {
                     <Col>Qty</Col>
                     <Col>
                       <Form.Control
-                        as="select"
+                        as='select'
                         value={qty}
                         onChange={(e) => setQty(Number(e.target.value))}
                       >
@@ -106,8 +105,8 @@ const ProductDetail = () => {
               <ListGroup.Item>
                 <Button
                   onClick={addToCartHandler}
-                  className="btn-block"
-                  type="button"
+                  className='btn-block'
+                  type='button'
                   disabled={product.rating.count === 0}
                 >
                   Add To Cart

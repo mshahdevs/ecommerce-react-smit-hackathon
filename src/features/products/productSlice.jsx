@@ -2,7 +2,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 
-// Fetch all products
 export const fetchProducts = createAsyncThunk(
   "products/fetchProducts",
   async () => {
@@ -24,7 +23,7 @@ const productSlice = createSlice({
   name: "products",
   initialState: {
     items: [],
-    productDetail: null, // single product
+    productDetail: null,
     status: "idle",
     error: null,
   },
