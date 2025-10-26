@@ -6,6 +6,7 @@ import { addToCart } from "../features/cart/cartSlice.jsx";
 import ProductCard from "../components/ProductCart.jsx";
 import Loader from "../components/Loader";
 import Message from "../components/Message";
+import ToastMessage from "../components/ToastMessage.jsx";
 
 const Home = () => {
   const dispatch = useDispatch();
@@ -16,6 +17,7 @@ const Home = () => {
   } = useSelector((state) => state.products);
 
   const [maxPrice, setMaxPrice] = useState(1000);
+  const [showToast, setShowToast] = useState(false);
 
   useEffect(() => {
     dispatch(fetchProducts());
@@ -23,12 +25,11 @@ const Home = () => {
 
   const handleAddToCart = (product) => {
     dispatch(addToCart(product));
+    setShowToast(true);
   };
 
   const filteredProducts = products.filter((p) => {
-    if (Number(maxPrice) === 0) {
-      return p.price === 0;
-    }
+    if (Number(maxPrice) === 0) return p.price === 0;
     return p.price <= maxPrice;
   });
 
@@ -80,6 +81,12 @@ const Home = () => {
           )}
         </Row>
       )}
+
+      <ToastMessage
+        show={showToast}
+        onClose={() => setShowToast(false)}
+        message='Product added to cart!'
+      />
     </Container>
   );
 };

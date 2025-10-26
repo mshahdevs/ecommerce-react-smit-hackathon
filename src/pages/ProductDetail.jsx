@@ -14,8 +14,11 @@ import { useSelector, useDispatch } from "react-redux";
 import Loader from "../components/Loader";
 import Message from "../components/Message";
 import { fetchProductById } from "../features/products/productSlice";
+import ToastMessage from "../components/ToastMessage.jsx";
+
 const ProductDetail = () => {
   const [qty, setQty] = useState(1);
+  const [showToast, setShowToast] = useState(false);
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { id } = useParams();
@@ -28,15 +31,16 @@ const ProductDetail = () => {
 
   useEffect(() => {
     dispatch(fetchProductById(id));
-  }, [dispatch, id]); // ✅ remove 'product' from dependencies
+  }, [dispatch, id]);
 
   const addToCartHandler = () => {
     navigate(`/cart/${id}?qty=${qty}`);
+    setShowToast(true);
   };
 
   if (status === "loading") return <Loader />;
   if (status === "failed") return <Message variant='danger'>{error}</Message>;
-  if (!product) return null; // safety check
+  if (!product) return null;
 
   return (
     <>
@@ -116,6 +120,12 @@ const ProductDetail = () => {
           </Card>
         </Col>
       </Row>
+
+      <ToastMessage
+        show={showToast}
+        onClose={() => setShowToast(false)}
+        message='Product added to cart!'
+      />
     </>
   );
 };
