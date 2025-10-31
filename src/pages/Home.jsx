@@ -17,11 +17,22 @@ const Home = () => {
   } = useSelector((state) => state.products);
 
   const [maxPrice, setMaxPrice] = useState(1000);
+  const [category, setCategory] = useState("All");
   const [showToast, setShowToast] = useState(false);
 
   useEffect(() => {
     dispatch(fetchProducts());
   }, [dispatch]);
+
+  // when products load, set the price slider max to the highest product price
+  useEffect(() => {
+    if (products && products.length > 0) {
+      const highest = Math.ceil(
+        Math.max(...products.map((p) => Number(p.price) || 0), 1000)
+      );
+      setMaxPrice(highest);
+    }
+  }, [products]);
 
   const handleAddToCart = (product) => {
     dispatch(addToCart(product));
@@ -29,8 +40,9 @@ const Home = () => {
   };
 
   const filteredProducts = products.filter((p) => {
-    if (Number(maxPrice) === 0) return p.price === 0;
-    return p.price <= maxPrice;
+    const pricePass = Number(maxPrice) === 0 ? Number(p.price) === 0 : Number(p.price) <= Number(maxPrice);
+    const categoryPass = category === "All" ? true : p.category === category;
+    return pricePass && categoryPass;
   });
 
   return (
@@ -38,13 +50,32 @@ const Home = () => {
       <h1 className='mb-4 text-center'>🛍️ Latest Products</h1>
 
       {/* Price Filter */}
+      {/* Category Filter */}
+      <Form.Group className='mb-3'>
+        <Form.Label>Filter by Category:</Form.Label>
+        <Form.Select
+          value={category}
+          onChange={(e) => setCategory(e.target.value)}
+        >
+          {/* derive categories from products */}
+          <option value='All'>All</option>
+          {Array.from(new Set(products.map((p) => p.category))).map((cat) => (
+            cat && (
+              <option key={cat} value={cat}>
+                {cat}
+              </option>
+            )
+          ))}
+        </Form.Select>
+      </Form.Group>
+
       <Form.Group className='mb-4'>
         <Form.Label>
           Filter by Price: <strong>${maxPrice}</strong>
         </Form.Label>
         <Form.Range
           min={0}
-          max={1000}
+          max={Math.ceil(Math.max(...products.map((p) => Number(p.price) || 0), 1000))}
           value={maxPrice}
           onChange={(e) => setMaxPrice(e.target.value)}
         />
@@ -57,7 +88,7 @@ const Home = () => {
       ) : (
         <Row>
           {filteredProducts.length > 0 ? (
-            filteredProducts.map((product) => (
+            filteredProducts.map((product, idx) => (
               <Col
                 key={product.id}
                 sm={12}
@@ -69,13 +100,14 @@ const Home = () => {
                 <ProductCard
                   product={product}
                   onAdd={() => handleAddToCart(product)}
+                  index={idx}
                 />
               </Col>
             ))
           ) : (
             <Col>
               <Alert variant='warning' className='text-center'>
-                No products found for this price range.
+                No products found for the selected filters.
               </Alert>
             </Col>
           )}
